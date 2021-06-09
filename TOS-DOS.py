@@ -1,7 +1,7 @@
 # imports
-from typing import OrderedDict
 import discord
 from discord.ext import commands, tasks
+from discord.utils import get
 from random import choice, shuffle, randrange
 from gpiozero import CPUTemperature
 from mechanize import Browser
@@ -409,65 +409,161 @@ async def on_command_error(ctx, error):
     await ctx.send(embed=embed)
 #for voting events
 @bot.event
-async def on_reaction_add(payload, user):
-    if voteid == 0:
-        return
-    if payload.message.id == voteid:
-        global votehuman
-        if any(ele in user.name for ele in votehuman):
-           return
-        votehuman.append(user.name) 
-        global voteno
-        global voteyes
-        if payload.emoji == "✅":
-            voteyes = voteyes + 1
-        elif payload.emoji == "❎":
-            voteno = voteno + 1
+async def on_raw_reaction_add(payload):
+    emoji = payload.emoji.name
+    user = payload.member
+    message = await bot.get_channel(payload.channel_id).fetch_message(payload.message_id)
+    if str(message.id) == "851739300882022420":
+        channel = message.channel
+        guild = channel.guild
+        if emoji == "🔴":
+            await user.add_roles(get(guild.roles, id=851712411428847656))
+        elif emoji == "🟠":
+            await user.add_roles(get(guild.roles, id=851712474096336897))
+        elif emoji == "🟡":
+            await user.add_roles(get(guild.roles, id=851712584481505320))
+        elif emoji == "🟢":
+            await user.add_roles(get(guild.roles, id=851712725125693441))
+        elif emoji == "🔵":
+            await user.add_roles(get(guild.roles, id=851712701632610357))
+        elif emoji == "🟣":
+            await user.add_roles(get(guild.roles, id=851712642602893342))
+        elif emoji == "🟤":
+            await user.add_roles(get(guild.roles, id=851723029959802890))
+        elif emoji == "⚪":
+            await user.add_roles(get(guild.roles, id=851723170226503720))
+        elif emoji == "⚫":
+            await user.add_roles(get(guild.roles, id=851723283236782110))
+        elif emoji == "🌎":
+            await user.add_roles(get(guild.roles, id=851723379646922753))
         else:
             pass
-#voting event
-@bot.command()
-async def vote(ctx, con: str = "NG"):
-    global votestatus
-    if con == "NG":
-        await ctx.send("content of voting not found.")
-    elif votestatus:
-        await ctx.send("You cannot raise a vote now because there is a vote raised.")
-    else:
-        try:
-            embed = discord.Embed(title="voting event started! Last for 5 minutes.",url="http://tntprizz.zapto.org/dc",description=con + "\n:white_check_mark: = Yes\n"
-            ":negative_squared_cross_mark: = No",
-            color=discord.Color.blue())
-            votemsg = await ctx.send(embed=embed)
-            global votehuman
-            global voteid
-            global voteyes
-            global voteno
-            voteid = votemsg.id
-            voteyes = -1
-            voteno = 0
-            votestatus = True
-            await votemsg.add_reaction("✅")
-            await votemsg.add_reaction("❎")
-            await asyncio.sleep(300)
-            await votemsg.reply("poll ended.\n✅ = " + str(voteyes) + "\n❎ = " + str(voteno), mention_author=False)
-            if voteyes > voteno:
-                await ctx.send("✅ > ❎, so the ✅ won!")
-            elif voteyes < voteno:
-                await ctx.send("✅ < ❎, so the ❎ won!")
-            else:
-                await ctx.send("✅ = ❎, so it is a tile!")
-            votehuman = []
-            voteyes = -1
-            voteno = 0
-            voteid = 0
-            votestatus = False
-        except Exception:
+    elif str(message.id) == "851744658659868702":
+        channel = message.channel
+        guild = channel.guild
+        if emoji == "💻":
+            await user.add_roles(get(guild.roles, id=851719683446669352))
+        elif emoji == "🕺":
+            await user.add_roles(get(guild.roles, id=851719744763854879))
+        elif emoji == "♂️":
+            await user.add_roles(get(guild.roles, id=851743689919037460))
+        else:
             pass
+@bot.event
+async def on_raw_reaction_remove(payload):
+    emoji = payload.emoji.name
+    message = await bot.get_channel(payload.channel_id).fetch_message(payload.message_id)
+    channel = message.channel
+    guild = channel.guild
+    user = get(guild.members, id=payload.user_id)
+    if str(message.id) == "851739300882022420":
+        if emoji == "🔴":
+            await user.remove_roles(get(guild.roles, id=851712411428847656))
+        elif emoji == "🟠":
+            await user.remove_roles(get(guild.roles, id=851712474096336897))
+        elif emoji == "🟡":
+            await user.remove_roles(get(guild.roles, id=851712584481505320))
+        elif emoji == "🟢":
+            await user.remove_roles(get(guild.roles, id=851712725125693441))
+        elif emoji == "🔵":
+            await user.remove_roles(get(guild.roles, id=851712701632610357))
+        elif emoji == "🟣":
+            await user.remove_roles(get(guild.roles, id=851712642602893342))
+        elif emoji == "🟤":
+            await user.remove_roles(get(guild.roles, id=851723029959802890))
+        elif emoji == "⚪":
+            await user.remove_roles(get(guild.roles, id=851723170226503720))
+        elif emoji == "⚫":
+            await user.remove_roles(get(guild.roles, id=851723283236782110))
+        elif emoji == "🌎":
+            await user.remove_roles(get(guild.roles, id=851723379646922753))
+        else:
+            pass
+    if str(message.id) == "851744658659868702":
+        if emoji == "💻":
+            await user.remove_roles(get(guild.roles, id=851719683446669352))
+        elif emoji == "🕺":
+            await user.remove_roles(get(guild.roles, id=851719744763854879))
+        elif emoji == "♂️":
+            await user.remove_roles(get(guild.roles, id=851743689919037460))
+        else:
+            pass
+@bot.event
+async def on_member_join(user):
+    if user.guild.id != 800679086955167775:
+        return
+    guild = user.guild
+    await user.add_roles(get(guild.roles, id=800681780834992129))
+    message = await bot.get_channel(800679087541583944).fetch_message(827789950606901309)
+    channel = message.channel
+    embed = discord.Embed(title="Welcome new user!",url="http://TNTprizz.zapto.org/dc",color=discord.Color.blue(),description="Welcome " + user.mention + " !\nHope you enjoy staying in this server!")
+    await channel.send(embed=embed)
+    await channel.send(file=discord.File('welcome.gif'))
+@bot.command()
+async def trigger(ctx, messageid: int):
+    await ctx.message.delete()
+    msg = await ctx.fetch_message(messageid)
+    await msg.add_reaction("✅")
+    await msg.add_reaction("❎")
 #this is still beta
 @bot.command()
 async def test(ctx):
     await ctx.send("You serious? This is not beta bash.")
+@bot.command()
+@commands.has_role('Administrator')
+async def warn(ctx, user: discord.User,*reason):
+    message = await bot.get_channel(851784439204675584).fetch_message(851784867066282057)
+    channel = message.channel
+    reason = " ".join(reason)
+    embed = discord.Embed(title=user.name + " is WARNED",url="http://tntprizz.zapto.org/dc",color=discord.Color.red(),description="Reason:\n" + reason + "\nFrom " + ctx.author.mention)
+    await ctx.send(embed=embed)
+    embed = discord.Embed(title="You are warned",url="http://tntprizz.zapto.org/dc",color=discord.Color.green(),description="Reason:" + reason + "\nFrom " + ctx.author.mention)
+    await user.send(embed=embed)
+    embed = discord.Embed(title=user.name + " is WARNED",url="http://tntprizz.zapto.org/dc",color=discord.Color.red(),description="Reason:\n" + reason + "\nchannel:" + ctx.message.channel.mention + "\nFrom " + ctx.author.mention)
+    await channel.send(embed=embed)
+@bot.command()
+@commands.has_role("Administrator")
+async def kick(ctx, user: discord.Member, *reason):
+    message = await bot.get_channel(851784439204675584).fetch_message(851784867066282057)
+    channel = message.channel
+    reason = " ".join(reason)
+    await user.kick(reason=reason)
+    embed = discord.Embed(title=user.name + " is KICKED",url="http://tntprizz.zapto.org/dc",color=discord.Color.red(),description="Reason:\n" + reason + "\nFrom " + ctx.author.mention)
+    await ctx.send(embed=embed)
+    embed = discord.Embed(title="You are kicked",url="http://tntprizz.zapto.org/dc",color=discord.Color.green(),description="Reason:" + reason + "\nFrom " + ctx.author.mention)
+    await user.send(embed=embed)
+    embed = discord.Embed(title=user.name + " is KICKED",url="http://tntprizz.zapto.org/dc",color=discord.Color.red(),description="Reason:\n" + reason + "\nchannel:" + ctx.message.channel.mention + "\nFrom " + ctx.author.mention)
+    await channel.send(embed=embed)
+@bot.command()
+@commands.has_role("Administrator")
+async def ban(ctx, user: discord.Member, *reason):
+    message = await bot.get_channel(851784439204675584).fetch_message(851784867066282057)
+    channel = message.channel
+    reason = " ".join(reason)
+    await user.ban(reason=reason)
+    embed = discord.Embed(title=user.name + " is BANNED",url="http://tntprizz.zapto.org/dc",color=discord.Color.red(),description="Reason:\n" + reason + "\nFrom " + ctx.author.mention)
+    await ctx.send(embed=embed)
+    embed = discord.Embed(title="You are banned",url="http://tntprizz.zapto.org/dc",color=discord.Color.green(),description="Reason:" + reason + "\nFrom " + ctx.author.mention)
+    await user.send(embed=embed)
+    embed = discord.Embed(title=user.name + " is BANNED!",url="http://tntprizz.zapto.org/dc",color=discord.Color.red(),description="Reason:\n" + reason + "\nchannel:" + ctx.message.channel.mention + "\nFrom " + ctx.author.mention)
+    await channel.send(embed=embed)
+@bot.command()
+@commands.has_role("Administrator")
+async def unban(ctx, id):
+    message = await bot.get_channel(851784439204675584).fetch_message(851784867066282057)
+    channel = message.channel
+    user = await bot.fetch_user(id)
+    await ctx.guild.unban(user)
+    embed = discord.Embed(title=user.name + " is UNBANNED",url="http://tntprizz.zapto.org/dc",color=discord.Color.red(),description="Thanks for admin's Great Fat Compassion!" + "\nFrom " + ctx.author.mention)
+    await ctx.send(embed=embed)
+    embed = discord.Embed(title="You are unbanned",url="http://tntprizz.zapto.org/dc",color=discord.Color.green(),description="Thanks for admin's Great Fat Compassion!" + "\nFrom " + ctx.author.mention)
+    await user.send(embed=embed)
+    embed = discord.Embed(title=user.name + " is BANNED!",url="http://tntprizz.zapto.org/dc",color=discord.Color.red(),description="Thanks for admin's Great Fat Compassion!\nchannel:" + ctx.message.channel.mention + "\nFrom " + ctx.author.mention)
+    await channel.send(embed=embed)
+@bot.command()
+@commands.has_role("Administrator")
+async def purge(ctx,limit:int):
+    await ctx.channel.purge(limit=limit)
 #embed echoimage
 @bot.command(aliases=["image"])
 async def echoimage(ctx, *url: str):
@@ -514,8 +610,8 @@ async def rps(ctx, F: str = "rock"):
 @bot.command(pass_content=True)
 async def sourcecode(ctx):
     await ctx.send(embed = discord.Embed(title="source code link:",
-                                url="http://tntprizz.zapto.org/dmg/discord/TOS-DOS(code).py",
-                                description="http://tntprizz.zapto.org/dmg/discord/TOS-DOS(code).py \nUpdate unevenly",
+                                url="https://github.com/TNTprizz/TOS-DOS",
+                                description="[Github](https://github.com/TNTprizz/TOS-DOS)\nUpdate unevenly",
                                 color=discord.Color.blue()))
 #start TNTprizz server
 @bot.command(aliases=["startsmp","smpstart","startserver","server"])
@@ -705,17 +801,6 @@ async def hello(ctx):
 async def secho(ctx, user: discord.User, args: str):
     await user.send(args)
     await ctx.send("secho executed successfully.")
-#print out the warnlist
-@bot.command(pass_context=True)
-async def warnlist(ctx):
-    record = open("warnrecord", "r")
-    content = str(record.read())
-    embed = discord.Embed(title="Warn List:",
-                          url="http://tntprizz.zapto.org/dc",
-                          description=content,
-                          color=discord.Color.red())
-    record.close()
-    await ctx.send(embed=embed)
 #export an embed table
 @bot.command(pass_context=True)
 async def embed(ctx, title: str, con: str):
@@ -737,46 +822,6 @@ async def dembed(ctx, title: str, con: str):
     record.close()
     await ctx.send(embed=embed)
     await ctx.message.delete()
-#warn a person
-@bot.command(pass_context=True)
-@commands.has_role("superuser")
-async def warn(ctx, user: discord.User, *args: str):
-    if not args:
-        await ctx.send("Pls provide a reason")
-        return
-    name = str(user.name)
-    record = open("warnrecord", "a+")
-    if name == "TNTprizz80315":
-        embed = discord.Embed(title=str(ctx.message.author.name + " is warned"),
-                              description="trying to warn root (σﾟ∀ﾟ)σ\nAnd, ofc, this will not be recorded.",
-                              color=discord.Color.red())
-    else:
-        E = (str(name) + " :" + str(args) + "\n")
-        record.write(E)
-        reason = ' '.join(args)
-        embed = discord.Embed(title=str(name + " is SERIOUSLY warned"),
-                              description=reason,
-                              color=discord.Color.blue())
-    record.close()
-    await ctx.send(embed=embed)
-#warn a persion Gently
-@bot.command(pass_context=True)
-@commands.has_role("superuser")
-async def Gwarn(ctx, user: discord.User, *args: str):
-    if not args:
-        await ctx.send("Pls provide a reason")
-        return
-    name = str(user.name)
-    if name == "TNTprizz80315":
-        embed = discord.Embed(title=str(ctx.message.author.name + " is warned"),
-                              description="trying to warn root (σﾟ∀ﾟ)σ\nAnd, ofc, this will not be recorded.",
-                              color=discord.Color.red())
-    else:
-        reason = ' '.join(args)
-        embed = discord.Embed(title=str(name + " is Gently warned"),
-                              description=reason,
-                              color=discord.Color.blue())
-    await ctx.send(embed=embed)
 #assign role
 @bot.command(pass_context=True)
 async def addrole(ctx, user: discord.Member, role: discord.Role):
@@ -892,16 +937,16 @@ async def creditz(ctx):
 async def man(ctx, cmd: str = "all"):
     embed = discord.Embed(title="manual",
                           url="http://TNTprizz.zapto.org/dc/",
-                          description="Hello! " + ctx.author.display_name + ",Welcome to TOS(TNTprizz operating server)!\nhere is the manual:",
+                          description="Hello! " + ctx.author.display_name + "\nHere is the manual:",
                           color=discord.Color.blue())
     embed.set_thumbnail(url="http://tntprizz.zapto.org/dc/bps(square).jpeg")
     if cmd == "all":
-        embed.add_field(name="bash:", value="`echo` `decho` `whoami` `whoamid` `whoamirole` `warnlist` `embed` `dembed` `sourcecode` `version` `about` `aboutme`"
+        embed.add_field(name="bash:", value="`echo` `decho` `whoami` `whoamid` `whoamirole` `embed` `dembed` `sourcecode` `version` `about` `aboutme`"
         " `vote`",
                         inline=False)
         embed.add_field(name="something E:", value="`ping` `pong` `E` `credit(z)` `ask` `kill` `temp` `rps` `coinfilp` `hack`", inline=False)
         embed.add_field(name="Minecraft:", value="`startserver`", inline=False)
-        embed.add_field(name="superusers:", value="`rmrole` `addrole` `(G)warn`", inline=False)
+        embed.add_field(name="superusers:", value="`rmrole` `addrole` `warn` `ban` `unban` `kick`", inline=False)
         embed.add_field(name="music Σ(Sigma):", value="use `$man music` for help", inline=False)
         embed.add_field(name="Currently updating", value="please look forward for updates!", inline=False)
     elif cmd == "rps":
@@ -918,6 +963,14 @@ async def man(ctx, cmd: str = "all"):
     elif cmd == "ask":
         embed.add_field(name="man ask:", value="`$ask [question]`\nanswer your questions randomly\n"
                                                "What do you expect? An AI?", inline=False)
+    elif cmd == "kick":
+        embed.add_field(name="man kick:", value="`$kick <@user> <reason>`\nKick the user with given reason.", inline=False)
+    elif cmd == "ban":
+        embed.add_field(name="man ban:", value="`$ban <@user> <reason>`\nBan the user with given reason.", inline=False)
+    elif cmd == "unban":
+        embed.add_field(name="man unban:", value="`$ban <user id>`\nUnban the user with given userid.", inline=False)
+    elif cmd == "warn":
+        embed.add_field(name="man warn:", value="`$warn <@user> <reason>`\nWarn the user with given reason.", inline=False)
     elif cmd == "echoimage":
         embed.add_field(name="man echoimage:", value="`$echoimage <url>`\nShow the image with given url.", inline=False)
     elif cmd == "temp":
@@ -976,8 +1029,6 @@ async def man(ctx, cmd: str = "all"):
         embed.add_field(name="man rmrole:", value="`$rmrole <@member> <rolename>`\nremove role from user", inline=False)
     elif cmd == "addrole":
         embed.add_field(name="man addrole:", value="`$addrole <@member> <rolename>`\nadd role to user", inline=False)
-    elif cmd == "warn":
-        embed.add_field(name="man warn:", value="`$warn <@member> <reason>`\nwarn a user", inline=False)
     elif cmd == "credit":
         embed.add_field(name="man credit:", value="`$credit`\nshow the credit", inline=False)
     elif cmd == "creditz":
