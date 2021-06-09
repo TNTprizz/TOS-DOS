@@ -56,7 +56,7 @@ class YTDLSource(discord.PCMVolumeTransformer):
 #end youtube_dl config
 #basic and global values.
 
-ver = "202106071656-ΣI"
+ver = "202106071656-Σ$A1"
 intents = discord.Intents().all()
 bot = commands.Bot(command_prefix='$', help_command=None, intents=intents)
 status = ['E', 'with 1 user', 'games', 'TOS-DOS', 'music', 'cytus2', 'Myself', 'phigros', 'nothing', '$man all', '$ask', 'maths', 'Dancerail3','MEMZ','Cytus','$about','CentOS','kali-linux','PUBG','Ubuntu','java','python','WannaCry']
