@@ -11,6 +11,7 @@ bot.ver = "202106111837-Σ$Cog1"
 async def on_ready():
   while True:
     await bot.change_presence(activity=discord.Game(name="Somethings"))
+    await asyncio.sleep(60)
 bot.cmdlist = {}
 for filename in os.listdir('./cogs'):
   if filename.endswith('.py'):
