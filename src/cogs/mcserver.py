@@ -16,7 +16,7 @@ class example(commands.Cog):
             exitcode = self.bot.server.poll()
         except: pass
         if exitcode == 0:
-            self.bot.server = subprocess.Popen(["bash","start.sh"],cwd="../papermc/")
+            self.bot.server = subprocess.Popen(["bash","start.sh"],cwd="../../papermc/")
             print("\a")
             exitcode = 1
             await ctx.send("Server is starting, please wait until server started message appears at <#838308356745330728>")
@@ -25,7 +25,7 @@ class example(commands.Cog):
     @commands.command()
     async def serverlog(self, ctx):
         await ctx.send("update when server start again.")
-        await ctx.send(file=discord.File('../papermc/minecraft.log'))
+        await ctx.send(file=discord.File('../../papermc/minecraft.log'))
 
 def setup(bot):
     bot.cmdlist["mcserver"] = {
@@ -34,11 +34,11 @@ def setup(bot):
         "serverlog": "`$serverlog`\nExport the server log."
         }
     try:
-        E = open("../mcserver/start.sh","r+")
+        E = open("../../mcserver/start.sh","r+")
         bot.add_cog(example(bot))
         E.close()
     except:
-        print("Warning: Cannot found the server start file! Not going to import cog: mcserver.")
+        print("Warning: Cannot found the server start file! Refuse to import cog: mcserver.")
     
 
     
