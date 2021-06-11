@@ -14,6 +14,7 @@ Stuffs need to be installed:
 - asyncio
 - psutil
 - gpiozero
+(install using python3 -m pip install <stuffs>)
 
 Version:
 - 202106111837-Σ$Cog1
