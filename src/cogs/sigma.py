@@ -366,7 +366,7 @@ def setup(bot):
         "`$music resume`:Resume the current track.\n"
         "`$music skip`:Skip the current track.\n"
         "`$music stop`:Stop the current track and clear the whole queue.\n"
-        "aliases: `$m` `$song` `$M`"
+        "aliases: `m` `song` `M`"
         }
     os.system("rm -rf ../music/*.m4a")
     os.system("rm -rf ../music/*.webm")
