@@ -34,7 +34,7 @@ def setup(bot):
         "serverlog": "`$serverlog`\nExport the server log."
         }
     try:
-        E = open("../../mcserver/start.sh","r+")
+        E = open("../../papermc/start.sh","r+")
         bot.add_cog(example(bot))
         E.close()
     except:

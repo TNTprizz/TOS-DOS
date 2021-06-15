@@ -66,7 +66,7 @@ def next(vc,id,bot):
             playlist[id] = {"order":0, "queue":[], "loop":False, "np":""}
             return
     playlist[id]["np"] = playlist[id]["queue"][playlist[id]["order"]]
-    vc.play(discord.FFmpegPCMAudio(executable="/bin/ffmpeg", source="../music/" + sourcelist[playlist[id]["np"]]), after=lambda e:next(vc,id))
+    vc.play(discord.FFmpegPCMAudio(executable="/bin/ffmpeg", source="../music/" + sourcelist[playlist[id]["np"]]), after=lambda e:next(vc,id,bot))
     playlist[id]["order"] = playlist[id]["order"] + 1
 
 class sigma(commands.Cog):
@@ -224,9 +224,6 @@ class sigma(commands.Cog):
                     except KeyError:
                         source = await YTDLSource.from_url(vurl, loop=bot.loop)
                         sourcelist[br.title()] = source
-                        sourcejson = open("../music/sourcelist.json","w")
-                        sourcejson.write(str(sourcelist))
-                        sourcejson.close()
                     os.system("mv *.m4a ../music/ 2>/dev/null")
                     os.system("mv *.webm ../music/ 2>/dev/null")
                     os.system("mv *.mp3 ../music/ 2>/dev/null")
@@ -246,9 +243,6 @@ class sigma(commands.Cog):
                         except KeyError:
                             source = await YTDLSource.from_url(vurl, loop=bot.loop)
                             sourcelist[br.title()] = source
-                            sourcejson = open("../music/sourcelist.json","w")
-                            sourcejson.write(str(sourcelist))
-                            sourcejson.close()
                         os.system("mv *.m4a ../music/ 2>/dev/null")
                         os.system("mv *.webm ../music/ 2>/dev/null")
                         os.system("mv *.mp3 ../music/ 2>/dev/null")
@@ -256,6 +250,9 @@ class sigma(commands.Cog):
                     except:
                         await ctx.send("Something went wrong, ignoring......")
                     i = i + 1
+            sourcejson = open("../music/sourcelist.json","w")
+            sourcejson.write(str(sourcelist))
+            sourcejson.close()
             await ctx.message.add_reaction("☑️")
         elif arg == "queue" or arg == "q" or arg == "play" or arg == "p":
             if url == "none":

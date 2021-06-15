@@ -1,6 +1,7 @@
 #imports
 import discord
 from discord.ext import commands
+import asyncio
 
 class error(commands.Cog):
     def __init__(self, bot):
@@ -43,7 +44,10 @@ class error(commands.Cog):
                                   description="try use `$man <command>` for help.",
                                   color=discord.Color.red())
         embed.add_field(name="Debug:",value=str(error))
-        await ctx.send(embed=embed)
+        msg = await ctx.send(embed=embed)
+        await asyncio.sleep(10)
+        await ctx.message.add_reaction("❌")
+        await msg.delete()
 
 def setup(bot):
     bot.add_cog(error(bot))

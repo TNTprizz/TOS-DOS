@@ -1,17 +1,32 @@
 #imports
 import discord
-from discord.ext import commands
+from discord.ext import commands, tasks
 from discord.utils import get
+import ast
+from random import choice
+status = ['E', 'with 1 user', 'games', 'TOS-DOS', 'music', 'cytus2', 'Myself', 'phigros', 'nothing', '$man all', '$ask', 'maths', 'Dancerail3','MEMZ','Cytus','$about','CentOS','kali-linux','PUBG','Ubuntu','java','python','WannaCry']
 
 class auto(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        self.chpre.start()
         
+    @tasks.loop(minutes=1)
+    async def chpre(self):
+        await self.bot.change_presence(activity=discord.Game(name =choice(status)))
+    
     @commands.Cog.listener()
     async def on_member_join(self, user):
         if user.guild.id != 800679086955167775:
             return
         guild = user.guild
+        json = open("../data/admin.json","r")
+        userlist = ast.literal_eval(json.read())
+        json.close()
+        for muteduser in userlist[str(guild.id)]["mutedusers"]:
+            if muteduser.id == user.id:
+                await user.send("You think that getting into the server again can unmute you? How naive")
+                return
         await user.add_roles(get(guild.roles, id=800681780834992129))
         message = await self.bot.get_channel(800679087541583944).fetch_message(827789950606901309)
         channel = message.channel
@@ -25,38 +40,17 @@ class auto(commands.Cog):
         channel = message.channel
         guild = channel.guild
         user = get(guild.members, id=payload.user_id)
-        if str(message.id) == "851739300882022420":
-            if emoji == "🔴":
-                await user.remove_roles(get(guild.roles, id=851712411428847656))
-            elif emoji == "🟠":
-                await user.remove_roles(get(guild.roles, id=851712474096336897))
-            elif emoji == "🟡":
-                await user.remove_roles(get(guild.roles, id=851712584481505320))
-            elif emoji == "🟢":
-                await user.remove_roles(get(guild.roles, id=851712725125693441))
-            elif emoji == "🔵":
-                await user.remove_roles(get(guild.roles, id=851712701632610357))
-            elif emoji == "🟣":
-                await user.remove_roles(get(guild.roles, id=851712642602893342))
-            elif emoji == "🟤":
-                await user.remove_roles(get(guild.roles, id=851723029959802890))
-            elif emoji == "⚪":
-                await user.remove_roles(get(guild.roles, id=851723170226503720))
-            elif emoji == "⚫":
-                await user.remove_roles(get(guild.roles, id=851723283236782110))
-            elif emoji == "🌎":
-                await user.remove_roles(get(guild.roles, id=851723379646922753))
-            else:
-                pass
-        if str(message.id) == "851744658659868702":
-            if emoji == "💻":
-                await user.remove_roles(get(guild.roles, id=851719683446669352))
-            elif emoji == "🕺":
-                await user.remove_roles(get(guild.roles, id=851719744763854879))
-            elif emoji == "♂️":
-                await user.remove_roles(get(guild.roles, id=851743689919037460))
-            else:
-                pass
+        json = open("../data/auto.json","r")
+        roledict = ast.literal_eval(json.read())
+        try:
+            msglist = roledict[str(guild.id)][str(message.id)]
+        except KeyError:
+            json.close()
+            return
+        for emo in msglist:
+            if emo == emoji:
+                await user.remove_roles(get(guild.roles, id=int(msglist[emoji])))
+                break
     @commands.Cog.listener()
     async def on_raw_reaction_add(self, payload):
         emoji = payload.emoji.name
@@ -64,41 +58,16 @@ class auto(commands.Cog):
         channel = message.channel
         guild = channel.guild
         user = get(guild.members, id=payload.user_id)
-        if str(message.id) == "851739300882022420":
-            channel = message.channel
-            guild = channel.guild
-            if emoji == "🔴":
-                await user.add_roles(get(guild.roles, id=851712411428847656))
-            elif emoji == "🟠":
-                await user.add_roles(get(guild.roles, id=851712474096336897))
-            elif emoji == "🟡":
-                await user.add_roles(get(guild.roles, id=851712584481505320))
-            elif emoji == "🟢":
-                await user.add_roles(get(guild.roles, id=851712725125693441))
-            elif emoji == "🔵":
-                await user.add_roles(get(guild.roles, id=851712701632610357))
-            elif emoji == "🟣":
-                await user.add_roles(get(guild.roles, id=851712642602893342))
-            elif emoji == "🟤":
-                await user.add_roles(get(guild.roles, id=851723029959802890))
-            elif emoji == "⚪":
-                await user.add_roles(get(guild.roles, id=851723170226503720))
-            elif emoji == "⚫":
-                await user.add_roles(get(guild.roles, id=851723283236782110))
-            elif emoji == "🌎":
-                await user.add_roles(get(guild.roles, id=851723379646922753))
-            else:
-                pass
-        elif str(message.id) == "851744658659868702":
-            channel = message.channel
-            guild = channel.guild
-            if emoji == "💻":
-                await user.add_roles(get(guild.roles, id=851719683446669352))
-            elif emoji == "🕺":
-                await user.add_roles(get(guild.roles, id=851719744763854879))
-            elif emoji == "♂️":
-                await user.add_roles(get(guild.roles, id=851743689919037460))
-            else:
-                pass
+        json = open("../data/auto.json","r")
+        roledict = ast.literal_eval(json.read())
+        try:
+            msglist = roledict[str(guild.id)][str(message.id)]
+        except KeyError:
+            json.close()
+            return
+        for emo in msglist:
+            if emo == emoji:
+                await user.add_roles(get(guild.roles, id=int(msglist[emoji])))
+                break
 def setup(bot):
     bot.add_cog(auto(bot))
