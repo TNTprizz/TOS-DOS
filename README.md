@@ -19,5 +19,12 @@ Stuffs need to be installed:
 Version:
 - 202106111837-Σ21Cog$
 
+Update log(202106111837-Σ21Cog$):
+- Added comments to the files
+- Rewrite Sigma.py so that it become more stable
+
 Author:
-- TNTprizz(I did all the coding, I even bought a raspberry pi to host the bot)
+- TNTprizz
+
+License:
+- None at all, fell free to copy or use the code after constructing the source into your source code
