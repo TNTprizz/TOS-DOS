@@ -9,7 +9,6 @@ Stuffs need to be installed:
 - discord.py
 - python-youtube
 - youtube-search-python
-- mechanize
 - youtube_dl
 - asyncio
 - psutil
@@ -18,7 +17,7 @@ Stuffs need to be installed:
 (install using python3 -m pip install (stuffs))
 
 Version:
-- 202106111837-Σ$Cog1
+- 202106111837-Σ21Cog$
 
 Author:
 - TNTprizz(I did all the coding, I even bought a raspberry pi to host the bot)
