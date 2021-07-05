@@ -1,0 +1,7 @@
+discord.py
+youtube-search-python
+pytube
+youtube_dl
+asyncio
+psutil
+gpiozero
