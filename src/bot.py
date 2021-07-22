@@ -26,7 +26,7 @@ async def determine_prefix(bot, message):
 intents = discord.Intents().all() # Intents
 # Create the bot object.  Prefix changer            replace with $man  intents
 bot = commands.Bot(command_prefix=determine_prefix, help_command=None, intents=intents)
-bot.ver = "202106181849-Σ21Cog$" # The version of the bot
+bot.ver = "202107221318-Σ22Cog$" # The version of the bot
 bot.config = config
 
 def nowtime():
