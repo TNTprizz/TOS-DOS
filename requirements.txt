@@ -5,3 +5,4 @@ youtube_dl
 asyncio
 psutil
 gpiozero
+pafy
