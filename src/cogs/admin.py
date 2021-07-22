@@ -244,54 +244,6 @@ class admin(commands.Cog): # Show that it is a discord Cog object.
             description="Reason:" + reason + "\nFrom " + ctx.author.mention
             )
         await user.send(embed=embed) # DM user the warning message
-        if len(jdict[str(ctx.guild.id)]["warn"][str(user.id)]) >= 5:
-            for role in user.roles: # Get Member's all roles
-                if role.name != "@everyone": # Don't remove the @everyone role
-                    await user.remove_roles(role) # Remove all his roles
-            # Make the embed object
-            embed = discord.Embed(
-                title=user.name + " is MUTED",
-                url="http://tntprizz.zapto.org/dc",
-                color=discord.Color.red(),
-                description="Reason:\nYou got 5 warnings, mute for 15 mins\nFrom " + ctx.author.mention
-                )
-            await ctx.send(embed=embed) # Send the embed to the current ctx channel
-            # Make the embed object
-            embed = discord.Embed(
-                title=user.name + " is MUTED!",
-                url="http://tntprizz.zapto.org/dc",
-                color=discord.Color.red(),
-                description="Reason:\nYou got 5 warnings, mute for 15 mins\nchannel:" + ctx.message.channel.mention + "\nFrom " + ctx.author.mention)
-            try: # Try to do
-                await get( # Get the warning channel from the dictionary
-                    ctx.guild.channels,
-                    id=int(
-                        jdict[str(ctx.guild.id)]["warnchannel"]
-                        )
-                    ).send(embed=embed)
-            except: # If it cannot
-                # Remind the admin to set the warning channel
-                await ctx.send("You may use `$warnchannel <#channel>` to specify the channel you want to public the warning channels.")
-            embed = discord.Embed( # Make the embed object
-                title="You are muted",
-                url="http://tntprizz.zapto.org/dc",
-                color=discord.Color.green(),
-                description="Reason:You got 5 warnings, mute for 15 mins\nFrom " + ctx.author.mention
-                )
-            await user.send(embed=embed) # DM user the embed
-            del jdict[str(ctx.guild.id)]["warn"][user.id]
-            await asyncio.sleep(900)
-            try: # Try to do
-                torole = jdict[str(ctx.guild.id)]["autorole"] # Get autorole id
-                guild = user.guild # Get the guild where the user is
-                await user.add_roles(get(guild.roles, id=int(torole))) # Add the user back to autorole
-            except: # If it cannot
-                # Send the warning message
-                await ctx.send("Cannot unmute. Please configure the autorole using `$autorole <@Role>`")   
-            del jdict[str(ctx.guild.id)]["mutedusers"][jdict[str(ctx.guild.id)]["mutedusers"].index(user.id)]
-            json = open("../data/admin.json","w") # Open and prepare to write ~/data/admin.json
-            json.write(str(jdict)) # Write the dictionary into the file
-            json.close() # Close the object to save resources
     # Show the warn record ($warnrecord [@Member])
     @commands.command()
     @commands.guild_only()

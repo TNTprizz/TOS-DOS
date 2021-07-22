@@ -5,6 +5,10 @@ from discord.ext import commands
 from io import StringIO
 from contextlib import redirect_stdout
 import os
+import time
+
+def nowtime():
+    return time.strftime("[%Y-%m-%d %H:%M:%S] ", time.localtime())
 
 # A new class called dev is ready to import as a cog
 class dev(commands.Cog): # Show that it is a discord Cog object
@@ -46,7 +50,8 @@ class dev(commands.Cog): # Show that it is a discord Cog object
         self.bot.unload_extension("cogs." + cogname) # Unload the cog
         try: # Try to do
             del self.bot.cmdlist[cogname] # Remove the command from the command list
-        except: pass # If it cannot then pass
+        except: pass
+        print(nowtime() + "\033[1;37;43m Sys   \033[1;32;40m Unloaded cog " + cogname + "\033[1;37;40m")
         await ctx.message.add_reaction("☑️") # Reactsuccess
     # Load a cog ($loadcog <cogname>)
     @commands.command(pass_context=True, aliases=["addcog"])
@@ -54,6 +59,7 @@ class dev(commands.Cog): # Show that it is a discord Cog object
         if not ctx.author.id in self.bot.config["sudoers"]: # If author is not sudoers
             raise commands.NotOwner("You are not sudoers") # Raise exception
         self.bot.load_extension("cogs." + cogname) # Load the cog
+        print(nowtime() + "\033[1;37;43m Sys   \033[1;32;40m Loaded cog " + cogname + "\033[1;37;40m")
         await ctx.message.add_reaction("☑️") # Reactsuccess
     # Reload a cog ($reloadcog <cogname>)
     @commands.command(pass_context=True)
@@ -62,6 +68,7 @@ class dev(commands.Cog): # Show that it is a discord Cog object
             raise commands.NotOwner("You are not sudoers") # Raise exception
         self.bot.unload_extension("cogs." + cogname) # Unload the extension
         self.bot.load_extension("cogs." + cogname) # Load the extension
+        print(nowtime() + "\033[1;37;43m Sys   \033[1;32;40m Reloaded cog " + cogname + "\033[1;37;40m")
         await ctx.message.add_reaction("☑️") # Reactsuccess
     # Check the cpu temperature ($temperature)
     @commands.command(aliases=["CPU","cpu","cputemperature","CPUtemperature"])

@@ -269,7 +269,7 @@ class bash(commands.Cog): # Show that it is a discord Cog object
         with open("../config.yml","r") as f:
             configfile = f.read()
         configfile = configfile.replace(self.bot.config["token"], "[ FORBIDDEN ]")
-        await ctx.send("```asciidoc\n" + configfile + "```")
+        await ctx.send("```yaml\n" + configfile + "```")
     @commands.command()
     async def rlsett(self, ctx):
         if not ctx.author.id in self.bot.config["sudoers"]:

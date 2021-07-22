@@ -1,9 +1,11 @@
 # Imports
 import discord
-from discord.errors import NotFound
 from discord.ext import commands
 import asyncio
+import time
 
+def nowtime():
+    return time.strftime("[%Y-%m-%d %H:%M:%S] ", time.localtime())
 # A new class called error is ready to import as a cog
 class error(commands.Cog): # Discord cog object
     def __init__(self, bot): # Import the bot
@@ -53,6 +55,13 @@ class error(commands.Cog): # Discord cog object
                 description="This command is only for the sudoers of this bot,\nShould there be any questions, contact <@469038475371479041>",
                 color=discord.Color.red()
             )
+        elif isinstance(error, (commands.BotMissingAnyRole, commands.BotMissingPermissions, commands.BotMissingRole)):
+            embed = discord.Embed( # Create the embed object
+                title="E! I don't have permissions to do that!",
+                url="http://tntprizz.zapto.org/dc",
+                description="The bot don't have permissions to do the commands.\nShould there be any questions, contact the server owner/moderator/admins",
+                color=discord.Color.red()
+            )
         else: # If the error cannot be defined
             embed = discord.Embed(
                 title="E! Something went wrong!",
@@ -64,12 +73,16 @@ class error(commands.Cog): # Discord cog object
             name="Traceback:",
             value="```\n" + str(error) + "```"
             )
-        msg = await ctx.send(embed=embed) # Export the embed
+        print(nowtime() + "\033[1;37;41m Error \033[1;31;40m Command error: "+ str(error) +"\033[1;37;40m")
+        try:
+            msg = await ctx.send(embed=embed) # Export the embed
+        except:
+            return
         await asyncio.sleep(10) # Sleep for 10 seconds
         try:
             await msg.delete() # Try to delete the error message
+            await ctx.message.add_reaction("❌") # Reacterror
         except: pass
-        await ctx.message.add_reaction("❌") # Reacterror
 
 def setup(bot):
     bot.add_cog(error(bot))

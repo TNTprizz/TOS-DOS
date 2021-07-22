@@ -1,14 +1,17 @@
 # Imports
+import sys
 import discord
 from discord.ext import commands
 from discord.utils import get
 from random import shuffle
 from youtube_search import YoutubeSearch
 import pytube
+import pafy
 import youtube_dl
 import time
 from io import StringIO
-from contextlib import redirect_stdout
+import asyncio
+from contextlib import redirect_stderr, redirect_stdout
 from math import floor
 
 # FFmpeg options that it will reconnect if timeout
@@ -46,14 +49,18 @@ def next(vc,guild,bot):
             return # Terminate the whole thing
     voice = get(vc, guild=guild) # Get the voice channel the user is in
     output = StringIO() # Prepare to resirect output
-    with redirect_stdout(output): # Redirect output to output variable
-        with youtube_dl.YoutubeDL(ydl_opts) as ydl: # Open YoutubeDL as ydl
-            # Download the bytes of the song
-            info = ydl.extract_info(bot.playlist[guild.id]["queue"][bot.playlist[guild.id]["order"]], download=False)
+    err = StringIO()
+    with redirect_stdout(output):
+        with redirect_stderr(output): # Redirect output to output variable
+            with youtube_dl.YoutubeDL(ydl_opts) as ydl: # Open YoutubeDL as ydl
+                # Download the bytes of the song
+                info = ydl.extract_info(bot.playlist[guild.id]["queue"][bot.playlist[guild.id]["order"]], download=False)
     # Get the time tick when music start
     bot.playlist[guild.id]["startime"] = floor(time.time())
     # Play the audio using FFmpeg
-    voice.play(discord.FFmpegPCMAudio(info["url"],**ffmpeg_options), after=lambda e:next(vc, guild, bot))
+    with redirect_stderr(err):
+        with redirect_stdout(output):
+            voice.play(discord.FFmpegPCMAudio(info["url"],**ffmpeg_options), after=lambda e:next(vc, guild, bot))
     # Set now playing to the currently playing song
     bot.playlist[guild.id]["np"] = bot.playlist[guild.id]["queue"][bot.playlist[guild.id]["order"]]
     bot.playlist[guild.id]["order"] = bot.playlist[guild.id]["order"] + 1 # Order += 1
@@ -148,17 +155,32 @@ class sigma(commands.Cog): # Show that it is a discord cog object
         try:
             plist = pytube.Playlist(url) # Get the playlist of the url
             timez = 0 # Declare an integer to count
+        except:
+            vid = pytube.YouTube(url) # Get the video of the url
+            self.bot.playlist[ctx.guild.id]["queue"].append(url) # Append the url into the queue
+            vid = pafy.new(url)
+            self.bot.songdes[url] = {"title" : vid.title, "duration": int(vid.duration), "thumb": vid.thumb} # Get the title and the duration of the track
+            voice_client = ctx.message.guild.voice_client # Get the voice client
+            if not voice_client.is_playing() and not voice_client.is_paused(): # If the bot isn't playing anything
+                next(self.bot.voice_clients, ctx.guild, self.bot) # Toggle the next function to start play music
+            embed = discord.Embed( # Make the embed object
+                title="Added track into queue",
+                color=discord.Color.gold(),
+                description="Added `" + vid.title + "` Into queue." # Tell user that the process is completed
+            )
+            # Set the thumbnail to the avatar of the video
+            embed.set_thumbnail(url=vid.thumb)
+        else:
             for URL in plist: # List all the link in the playlist
+                vid = pafy.new(URL) # Get the video object
+                self.bot.songdes[URL] = {"title" : vid.title, "duration": int(vid.length), "thumb": vid.thumb} # Get the title and the duration of the track
                 self.bot.playlist[ctx.guild.id]["queue"].append(URL) # Append the links into the queue
-                vid = plist.videos[timez] # Get the video object
-                self.bot.songdes[URL] = {"title" : vid.title, "duration": int(vid.length)} # Get the title and the duration of the track
                 await msg.edit(embed=discord.Embed( # Edit the embed to prevent timeout error
                     title="Procesing, please wait.\nDownloaded:" + str(timez) # (And force it to response to commands)
                 ))
-                if timez == 0: # If the first one is done
-                    voice_client = ctx.message.guild.voice_client # Get the voice client
-                    if not voice_client.is_playing() and not voice_client.is_paused(): # If the bot isn't playing anything
-                        next(self.bot.voice_clients, ctx.guild, self.bot) # Toggle the next function to start play music
+                
+                if not ctx.message.guild.voice_client.is_playing() and not ctx.message.guild.voice_client.is_paused(): # If the bot isn't playing anything
+                    next(self.bot.voice_clients, ctx.guild, self.bot) # Toggle the next function to start play music
                 timez = timez + 1 # timez =+ 1
             embed = discord.Embed( # Create an embed object
                 title="Added playlist into queue",
@@ -166,24 +188,7 @@ class sigma(commands.Cog): # Show that it is a discord cog object
                 description="Added " + str(len(plist)) + " tracks into queue\nName of playlist: `" + plist.title + "`"
             )
             # Set the thumbnail to the avatar of the first video
-            embed.set_thumbnail(url=plist.videos[0].thumbnail_url)
-        except:
-            try:
-                vid = pytube.YouTube(url) # Get the video of the url
-                self.bot.playlist[ctx.guild.id]["queue"].append(url) # Append the url into the queue
-                self.bot.songdes[url] = {"title" : vid.title, "duration": int(vid.length)} # Get the title and the duration of the track
-                voice_client = ctx.message.guild.voice_client # Get the voice client
-                if not voice_client.is_playing() and not voice_client.is_paused(): # If the bot isn't playing anything
-                    next(self.bot.voice_clients, ctx.guild, self.bot) # Toggle the next function to start play music
-                embed = discord.Embed( # Make the embed object
-                    title="Added track into queue",
-                    color=discord.Color.gold(),
-                    description="Added " + vid.title + " Into queue." # Tell user that the process is completed
-                )
-                # Set the thumbnail to the avatar of the video
-                embed.set_thumbnail(url=vid.thumbnail_url)
-            except: # If both of them failed
-                raise commands.BadArgument("Not a youtube link") # Raise exception
+            embed.set_thumbnail(url=self.bot.songdes[self.bot.playlist[ctx.guild.id]["queue"][0]]["thumb"])
         await msg.edit(embed=embed) # Export the embed table
         await ctx.message.add_reaction("☑️") # React if success
     # Show what is playing now ($nowplaying)
@@ -196,7 +201,7 @@ class sigma(commands.Cog): # Show that it is a discord cog object
         try: # Try to get the video url and youtube video object
             url = self.bot.playlist[ctx.guild.id]["queue"][self.bot.playlist[ctx.guild.id]["order"] - 1]
             des = self.bot.songdes[url]
-            vid = pytube.YouTube(url)
+            thumb = des["thumb"]
         except: # If it cannot
             raise Exception("The bot is not playing anything at the moment.") # Raise error
         ctime = floor(time.time()) # Get current time tick
@@ -221,7 +226,7 @@ class sigma(commands.Cog): # Show that it is a discord cog object
             description="[**" + des["title"] + "**](" + url + ")\n" + timeconvert(etime) + " / " + timeconvert(des["duration"]) + "\n`" + bar + "`"
         )
         # Set thumbnail to the avatar of the video
-        embed.set_thumbnail(url=vid.thumbnail_url)
+        embed.set_thumbnail(url=thumb)
         await ctx.send(embed = embed) # Export the embed object
     # Search for songs($search <arguments>)
     @commands.guild_only()
@@ -261,15 +266,15 @@ class sigma(commands.Cog): # Show that it is a discord cog object
         if opt >= 10: # If option is larger than 9
             raise ValueError("You should insert an integer within 0 to 9! Cancel operation") # Raise exception
         url = "https://www.youtube.com/" + result[opt]["url_suffix"] # Get the video url
-        vid = pytube.YouTube(url) # Get video object using the given url
-        self.bot.playlist[ctx.guild.id]["queue"].append(url) # Append url to the list
-        self.bot.songdes[url] = {"title" : vid.title, "duration": int(vid.length)} # Get the description of the song
+        vid = pafy.new(url) # Get the video object
+        self.bot.songdes[url] = {"title" : vid.title, "duration": int(vid.length), "thumb": vid.thumb} # Get the title and the duration of the track
+        self.bot.playlist[ctx.guild.id]["queue"].append(URL) # Append the links into the queue
         embed = discord.Embed( # Make an embed object
             title="Added track into queue",
             color=discord.Color.gold(),
             description="Added " + vid.title + " Into queue."
         )
-        embed.set_thumbnail(url=vid.thumbnail_url) # Set thumbnail to video thumbnail
+        embed.set_thumbnail(url=vid.thumb) # Set thumbnail to video thumbnail
         voice_client = ctx.message.guild.voice_client # Get the voice client object
         if not voice_client.is_playing() and not voice_client.is_paused(): # If the voice client isn't playing
             next(self.bot.voice_clients, ctx.guild, self.bot) # Start playing song

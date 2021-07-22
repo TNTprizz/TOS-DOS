@@ -8,7 +8,8 @@ import os
 import sys
 import ast
 import yaml
-os.chdir(os.path.dirname(os.path.abspath(__file__)))
+import time
+
 with open("../config.yml") as f:
   config = yaml.safe_load(f)
 
@@ -28,6 +29,9 @@ bot = commands.Bot(command_prefix=determine_prefix, help_command=None, intents=i
 bot.ver = "202106181849-Σ21Cog$" # The version of the bot
 bot.config = config
 
+def nowtime():
+  return time.strftime("[%Y-%m-%d %H:%M:%S] ", time.localtime())
+
 def restart_program(): # Restart the whole bot
   python = sys.executable # pyhton = the file it is running
   os.execl(python, python, * sys.argv) # Restart the bot
@@ -37,18 +41,26 @@ async def restart(ctx): # Define the function
   if not ctx.author.id in bot.config["sudoers"]: # If user is not @T̸͍͠N̵͓̚T̴̤͘p̷̣̌ř̵̝ì̴͈z̴̗͐z̷̰̒#9487
     raise commands.NotOwner("You are not the owner of this bot")
   await ctx.send("Restarting... Allow up to 5 seconds") # Show the program restarting message.
-  print("Caught restart command, restarting......") # Output to terminal
+  print(nowtime() + "\033[1;37;45m Sys   \033[1;34;40m Caught restart command, restarting......\033[1;37;40m") # Output to terminal
   restart_program() # See line 22
 # Import the cogs when the bot is ready (N/A)
 @bot.event
 async def on_ready(): # Define the function
   for filename in os.listdir('./cogs'): # List all the files in ~/src/cogs
     if filename.endswith('.py'): # If file is a python file
-      print("Loaded cog " + filename[:-3] + " from file: " + filename) # Output to terminal
-      bot.load_extension(f'cogs.{filename[:-3]}') # Import the Cogs
+      try:
+        bot.load_extension(f'cogs.{filename[:-3]}') # Import the Cogs
+        print(nowtime() + "\033[1;37;43m Sys   \033[1;32;40m Loaded cog " + filename[:-3] + " from file: " + filename + "\033[1;37;40m") # Output to terminal
+      except Exception:
+        print(nowtime() + "\033[1;37;41m Error \033[1;31;40m Cannot load cog " + filename[:-3] + " from file: " + filename + ", ignoring\033[1;37;40m")
   bot.playlist = {} # Init for sigma
   bot.songdes = {} # Init for sigma
-  print("TOS-DOS is watching you!") # Output to terminal if the whole thing is completed
+  print(nowtime() + "\033[1;37;43m Msg   \033[1;36;40m TOS-DOS is watching you!\033[1;37;40m") # Output to terminal if the whole thing is completed
+@bot.event
+async def on_message(message):
+  if message.content.startswith('$') and not message.content == "$":
+    print(nowtime() + "\033[1;37;46m Cmd   \033[1;33;40m Execute command \033[1;32;40m" + message.content + "\033[1;33;40m from \033[1;35;40m" + message.author.display_name + "\033[1;37;40m")
+    await bot.process_commands(message)
 # Prefix command ($prefix [prefix])
 @bot.command()
 @commands.guild_only() # Cannot execute in DMChannel
@@ -77,7 +89,7 @@ async def prefix(ctx, *, prefixes=""): # Define the function
       bot.custom_prefixes[ctx.guild.id] = ["$"] # Give it a new value
     await ctx.send("Prefix of this server: `" + str(bot.custom_prefixes[ctx.guild.id]) + "`") # Show the current prefix of this server
 
-print('No santax exception, running') # tell user that there is no santax error in this file.
+print(nowtime() + "\033[1;37;44m Base  \033[1;33;40m Connecting to Discord API\033[1;37;40m") # tell user that there is no santax error in this file.
 
 bot.cmdlist = {} # For the manual system
 # Format:

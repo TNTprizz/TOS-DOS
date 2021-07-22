@@ -4,8 +4,12 @@ from discord.ext import commands, tasks
 from discord.utils import get
 import ast
 from random import choice
+import time
 # Status list(Static)
 status = ['E', 'with 1 user', 'games', 'TOS-DOS', 'music', 'cytus2', 'Myself', 'phigros', 'nothing', '$man all', '$ask', 'maths', 'Dancerail3','MEMZ','Cytus','$about','CentOS','kali-linux','PUBG','Ubuntu','java','python','WannaCry']
+
+def nowtime():
+    return time.strftime("[%Y-%m-%d %H:%M:%S] ", time.localtime())
 
 # A new class called auto which is ready to import as a cog
 class auto(commands.Cog): # Showing it is a Cog object
@@ -57,6 +61,11 @@ class auto(commands.Cog): # Showing it is a Cog object
             if muteduser.id == user.id: # If the user joined is muted
                 await user.send("You think that getting into the server again can unmute you? How naive") # Tease the user
                 return # Terminate all the object
+        try:
+            userlist[str(guild.id)]["autorole"]
+        except Exception as error:
+            print(nowtime() + "\033[1;37;41m Error \033[1;31;40m Listener error: "+ str(error) +"\033[1;37;40m")
+            return
         await user.add_roles(get( # Autorole
             guild.roles,
             id=int(userlist[str(guild.id)]["autorole"])
