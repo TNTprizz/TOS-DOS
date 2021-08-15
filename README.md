@@ -1,3 +1,7 @@
+SERIOUS ANNOUNCEMENT:
+- will not update anymore here because why am I doing that for 0 watches and no benefit
+- go find a better bot's code for your server bot
+
 Requirements:
 - "E.key" which insert your bot token there
 - "welcome.gif" which is the welcome gif
